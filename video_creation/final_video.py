@@ -23,7 +23,6 @@ import time
 
 console = Console()
 
-
 class ProgressFfmpeg(threading.Thread):
     def __init__(self, vid_duration_seconds, progress_update_callback):
         threading.Thread.__init__(self, name="ProgressFfmpeg")
@@ -217,7 +216,7 @@ def make_final_video(
 
     image_clips.insert(
         0,
-        ffmpeg.input(f"assets/temp/{reddit_id}/png/title.png")["v"].filter(
+        ffmpeg.input(f"assets/temp/{reddit_id}/png/ballsquib.JPG")["v"].filter(
             "scale", screenshot_width, -1
         ),
     )
@@ -226,7 +225,7 @@ def make_final_video(
     if settings.config["settings"]["storymode"]:
         audio_clips_durations = [
             float(
-                ffmpeg.probe(f"assets/temp/{reddit_id}/mp3/postaudio-{i}.mp3")[
+                ffmpeg.probe(f"assets/temp/{reddit_id}/mp3/captionpace-{i}.mp3")[
                     "format"
                 ]["duration"]
             )
@@ -256,7 +255,7 @@ def make_final_video(
             current_time += audio_clips_durations[1]
         elif settings.config["settings"]["storymodemethod"] == 1:
             for i in track(
-                range(0, number_of_clips + 1), "Collecting the image files..."
+                range(0, number_of_clips+1), "Collecting the image files..."
             ):
                 image_clips.append(
                     ffmpeg.input(f"assets/temp/{reddit_id}/png/img{i}.png")["v"].filter(
@@ -275,7 +274,7 @@ def make_final_video(
             image_clips.append(
                 ffmpeg.input(f"assets/temp/{reddit_id}/png/comment_{i}.png")[
                     "v"
-                ].filter("scale", screenshot_width, -1)
+                ].filter("scale", screenshot_width, 0)
             )
             image_overlay = image_clips[i].filter("colorchannelmixer", aa=opacity)
             background_clip = background_clip.overlay(
@@ -341,7 +340,7 @@ def make_final_video(
                 height,
                 title_thumb,
             )
-            thumbnailSave.save(f"./assets/temp/{reddit_id}/thumbnail.png")
+            thumbnailSave.save(f"./assets/temp/{reddit_id}/ballsquib.JPG")
             print_substep(
                 f"Thumbnail - Building Thumbnail in assets/temp/{reddit_id}/thumbnail.png"
             )
@@ -352,7 +351,7 @@ def make_final_video(
         text=text,
         x=f"(w-text_w)",
         y=f"(h-text_h)",
-        fontsize=5,
+        fontsize=10,
         fontcolor="White",
         fontfile=os.path.join("fonts", "Roboto-Regular.ttf"),
     )

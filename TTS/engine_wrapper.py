@@ -17,7 +17,14 @@ from utils.voice import sanitize_text
 
 DEFAULT_MAX_LENGTH: int = 50  # Video length variable, edit this on your own risk. It should work, but it's not supported
 
+def split_string(string, max_words):
+        words = string.split()
+        return [' '.join(words[i:i+max_words]) for i in range(0, len(words), max_words)]
 
+def remove_spaces(string):
+        string = re.sub(r'\. +', '.', string)
+        string = re.sub(r'\.', '. ', string)
+        return string
 
 class TTSEngine:
 
@@ -68,7 +75,7 @@ class TTSEngine:
             comment["comment_body"] = comment["comment_body"].replace(".. . ", ".")
             comment["comment_body"] = comment["comment_body"].replace(". . ", ".")
             comment["comment_body"] = re.sub(r'\."\.', '".', comment["comment_body"])
-
+    
     def run(self) -> Tuple[int, int]:
         Path(self.path).mkdir(parents=True, exist_ok=True)
         print_step("Saving Text to MP3 files...")
@@ -87,8 +94,14 @@ class TTSEngine:
                         "postaudio", process_text(self.reddit_object["thread_post"])
                     )
             elif settings.config["settings"]["storymodemethod"] == 1:
+                concat_texts = ''.join(self.reddit_object["thread_post"])
+                concat_texts = remove_spaces(concat_texts)
+                bite_size_texts = split_string(concat_texts, 3)
+                bite_size_texts.append('quibble')
                 for idx, text in track(enumerate(self.reddit_object["thread_post"])):
                     self.call_tts(f"postaudio-{idx}", process_text(text))
+                for idx, text in track(enumerate(bite_size_texts)):
+                    self.call_tts(f"captionpace-{idx}", process_text(text))
 
         else:
             for idx, comment in track(
